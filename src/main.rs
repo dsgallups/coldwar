@@ -4,6 +4,7 @@ use std::{
     io::{BufReader, Read as _, Write as _},
 };
 
+use clap::Parser;
 use quick_xml::events::Event;
 use walkdir::WalkDir;
 //6b925f47fe5958318cf63084b4bb8331
@@ -29,7 +30,16 @@ build a reqwest client that will scrape every page's words, and then click on ev
 and will happen in parallel
 
 */
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = Args::parse();
+    println!("Hello, world!");
+
+    Ok(())
+}
+
+fn old_main() {
+    let args = Args::parse();
     println!("Hello, world!");
 
     let mut words = HashSet::new();
@@ -70,6 +80,7 @@ fn main() {
                 Ok(Event::Eof) | Err(_) => break,
                 Ok(_) => {}
             }
+            trash.clear();
         }
     }
 
@@ -104,4 +115,16 @@ fn clean_str(s: &str) -> String {
         .enumerate()
         .map(|(i, c)| if i == 0 { c.to_ascii_uppercase() } else { c })
         .collect()
+}
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// URL to fetch
+    #[arg(short, long)]
+    url: String,
+
+    /// Depth to scrape
+    #[arg(short, long, default_value_t = 1)]
+    depth: u8,
 }
